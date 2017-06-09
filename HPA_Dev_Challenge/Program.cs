@@ -13,14 +13,14 @@ namespace HPA_Dev_Challenge
     {
         static void Main(string[] args)
         {
-            
+
             string strUrl = args[0];
             bool validUrl = ValidateURL(strUrl);
             IAlert alert;
             if (validUrl)
             {
                 IWebDriver driver = new InternetExplorerDriver();
-                
+
 
                 driver.Navigate().GoToUrl(strUrl);
 
@@ -28,9 +28,9 @@ namespace HPA_Dev_Challenge
                 {
                     Console.WriteLine("Successfully loaded " + strUrl);
                     //Find Step One
-                    IWebElement stepOneElement =  driver.FindElement(By.XPath("//*[text()='Step 1.']"));
+                    IWebElement stepOneElement = driver.FindElement(By.XPath("//*[text()='Step 1.']"));
                     if (stepOneElement != null)
-                    {                      
+                    {
                         Console.WriteLine(stepOneElement.Text);
                         stepOneElement.Click();
                         alert = driver.SwitchTo().Alert();
@@ -40,7 +40,6 @@ namespace HPA_Dev_Challenge
                     {
                         Console.WriteLine("Unable to find Step 1.");
                     }
-                    
                     IWebElement stepTwoElement = driver.FindElement(By.XPath("//*[text() ='Step 2.']"));
                     if (stepTwoElement != null)
                     {
@@ -60,13 +59,30 @@ namespace HPA_Dev_Challenge
                         IWebElement optionElementNeeded = driver.FindElement(By.XPath("//*//*//input[" + optionElement.Text + "]"));
                         optionElementNeeded.Click();
 
+
                         alert = driver.SwitchTo().Alert();
                         alert.Accept();
                     }
 
+                    IWebElement stepFourElement = driver.FindElement(By.XPath("//*[text() ='Step 4.']"));
+                    if (stepFourElement != null)
+                    {
+                        Console.WriteLine(stepFourElement.Text);
+                        IWebElement selectElementNeeded = driver.FindElement(By.XPath("//*[@id='selectionVal']"));
+                        string strSelectText = selectElementNeeded.Text;
+
+                        IWebElement selectElement = driver.FindElement(By.XPath("//*[text() = '" + strSelectText + "']"));
+                        if (selectElement != null)
+                        {
+                            selectElement.Click();
+                            alert = driver.SwitchTo().Alert();
+                            alert.Accept();
+                        }
+
+                    }
                 }
+                Console.ReadLine();
             }
-            Console.ReadLine();
         }
 
         static bool ValidateURL(string strURL)
