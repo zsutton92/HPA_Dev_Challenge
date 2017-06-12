@@ -178,9 +178,16 @@ namespace HPA_Dev_Challenge
             if (stepOneElement != null)
             {
                 Console.WriteLine("Executing Step One.");
-                stepOneElement.Click();
-                AcceptDialog(driver);
-                result = true;
+                try
+                {
+                    stepOneElement.Click();
+                    AcceptDialog(driver);
+                    result = true;
+                }
+                catch
+                {
+                    result = false;
+                }                
             }
             else
             {
@@ -200,10 +207,17 @@ namespace HPA_Dev_Challenge
             if (stepTwoElement != null)
             {
                 Console.WriteLine("Executing Step Two.");
-                stepTwoElement.SendKeys(Keys.Tab);
-                stepTwoElement.SendKeys(Keys.Tab);
-                AcceptDialog(driver);
-                result = true;
+                try
+                {
+                    stepTwoElement.SendKeys(Keys.Tab);
+                    stepTwoElement.SendKeys(Keys.Tab);
+                    AcceptDialog(driver);
+                    result = true;
+                }
+                catch
+                {
+                    result = false;
+                }                
             }
             else
             {
@@ -224,12 +238,19 @@ namespace HPA_Dev_Challenge
             if (stepThreeElement != null)
             {
                 Console.WriteLine("Executing Step Three.");
-                IWebElement optionElement = driver.FindElement(By.XPath("//*[@id='optionVal']"));
-                Console.WriteLine("Select Option " + optionElement.Text);
-                IWebElement optionElementNeeded = driver.FindElement(By.XPath("//*//*//input[" + optionElement.Text + "]"));
-                optionElementNeeded.Click();
-                AcceptDialog(driver);
-                result = true;
+                try
+                {
+                    IWebElement optionElement = driver.FindElement(By.XPath("//*[@id='optionVal']"));
+                    Console.WriteLine("Select Option " + optionElement.Text);
+                    IWebElement optionElementNeeded = driver.FindElement(By.XPath("//*//*//input[" + optionElement.Text + "]"));
+                    optionElementNeeded.Click();
+                    AcceptDialog(driver);
+                    result = true;
+                }
+                catch
+                {
+                    result = false;
+                }
             }
             else
             {
@@ -249,19 +270,26 @@ namespace HPA_Dev_Challenge
             if (stepFourElement != null)
             {
                 Console.WriteLine("Executing Step Four.");
-                IWebElement selectElementNeeded = driver.FindElement(By.XPath("//*[@id='selectionVal']"));
-                string strSelectText = selectElementNeeded.Text;
-
-                IWebElement dropDownElement = driver.FindElement(By.XPath("//*//*//select"));
-                SelectElement selectElement = new SelectElement(dropDownElement);
-                if (selectElement != null)
+                try
                 {
-                    Console.WriteLine("Select " + strSelectText);
-                    selectElement.SelectByText(strSelectText);
-                    AcceptDialog(driver);
-                    result = true;
+                    IWebElement selectElementNeeded = driver.FindElement(By.XPath("//*[@id='selectionVal']"));
+                    string strSelectText = selectElementNeeded.Text;
+
+                    IWebElement dropDownElement = driver.FindElement(By.XPath("//*//*//select"));
+                    SelectElement selectElement = new SelectElement(dropDownElement);
+                    if (selectElement != null)
+                    {
+                        Console.WriteLine("Select " + strSelectText);
+                        selectElement.SelectByText(strSelectText);
+                        AcceptDialog(driver);
+                        result = true;
+                    }
+                    else
+                    {
+                        result = false;
+                    }
                 }
-                else
+                catch
                 {
                     result = false;
                 }
@@ -285,25 +313,32 @@ namespace HPA_Dev_Challenge
             if (stepFiveElement != null)
             {
                 Console.WriteLine("Executing Step Five.");
-                IWebElement formElement;
-                string placeholder;
-
-                for (int i = 1; i < 10; i++)
+                try
                 {
-                    formElement = driver.FindElement(By.XPath("//*[@id='FormTable']/tbody/tr[" + i + "]/td/*"));
-                    placeholder = formElement.GetAttribute("placeholder");
-                    Console.WriteLine("Sending " + placeholder + " to form.");
-                    formElement.SendKeys(placeholder);
+                    IWebElement formElement;
+                    string placeholder;
+
+                    for (int i = 1; i < 10; i++)
+                    {
+                        formElement = driver.FindElement(By.XPath("//*[@id='FormTable']/tbody/tr[" + i + "]/td/*"));
+                        placeholder = formElement.GetAttribute("placeholder");
+                        Console.WriteLine("Sending " + placeholder + " to form.");
+                        formElement.SendKeys(placeholder);
+                    }
+
+                    formElement = driver.FindElement(By.XPath("//*[@id='FormTable']/tbody/tr[10]/td/center/button"));
+                    formElement.Click();
+
+                    AcceptDialog(driver);
+
+                    formElement = driver.FindElement(By.Id("formResult"));
+                    formResult = formElement.Text;
+                    result = true;
                 }
-
-                formElement = driver.FindElement(By.XPath("//*[@id='FormTable']/tbody/tr[10]/td/center/button"));
-                formElement.Click();
-
-                AcceptDialog(driver);
-
-                formElement = driver.FindElement(By.Id("formResult"));
-                formResult = formElement.Text;
-                result = true;
+                catch
+                {
+                    result = false;
+                }
             }
             else
             {
@@ -323,16 +358,23 @@ namespace HPA_Dev_Challenge
             if (stepSixElement != null)
             {
                 Console.WriteLine("Executing Step Six.");
-                string lineNumber = driver.FindElement(By.Id("lineNum")).Text;
-                Console.WriteLine("Line number to insert into: " + lineNumber);
+                try
+                {
+                    string lineNumber = driver.FindElement(By.Id("lineNum")).Text;
+                    Console.WriteLine("Line number to insert into: " + lineNumber);
 
-                IWebElement textboxElement = driver.FindElement(By.XPath("//*[@id='inputTable']/tbody/tr[" + lineNumber + "]/td[2]/input"));
-                textboxElement.Clear();
-                textboxElement.SendKeys(formResult);
-                textboxElement.SendKeys(Keys.Tab);
+                    IWebElement textboxElement = driver.FindElement(By.XPath("//*[@id='inputTable']/tbody/tr[" + lineNumber + "]/td[2]/input"));
+                    textboxElement.Clear();
+                    textboxElement.SendKeys(formResult);
+                    textboxElement.SendKeys(Keys.Tab);
 
-                AcceptDialog(driver);
-                result = true;
+                    AcceptDialog(driver);
+                    result = true;
+                }
+                catch
+                {
+                    result = false;
+                }
             }
             else
             {
@@ -350,15 +392,22 @@ namespace HPA_Dev_Challenge
             bool result = false;
             for (int i = 7; i < 11; i++)
             {
-                IWebElement stepElement = driver.FindElement(By.XPath("//*[text()= 'Step " + i + ".']"));
-                if (stepElement != null)
+                try
                 {
-                    Console.WriteLine("Executing " + stepElement.Text);
-                    stepElement.Click();
-                    AcceptDialog(driver);
-                    result = true;
+                    IWebElement stepElement = driver.FindElement(By.XPath("//*[text()= 'Step " + i + ".']"));
+                    if (stepElement != null)
+                    {
+                        Console.WriteLine("Executing " + stepElement.Text);
+                        stepElement.Click();
+                        AcceptDialog(driver);
+                        result = true;
+                    }
+                    else
+                    {
+                        result = false;
+                    }
                 }
-                else
+                catch
                 {
                     result = false;
                 }
