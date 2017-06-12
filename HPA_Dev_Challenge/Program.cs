@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support;
 using OpenQA.Selenium.IE;
+using OpenQA.Selenium.Support.UI;
 
 namespace HPA_Dev_Challenge
 {
@@ -40,6 +41,7 @@ namespace HPA_Dev_Challenge
                     {
                         Console.WriteLine("Unable to find Step 1.");
                     }
+
                     IWebElement stepTwoElement = driver.FindElement(By.XPath("//*[text() ='Step 2.']"));
                     if (stepTwoElement != null)
                     {
@@ -71,16 +73,84 @@ namespace HPA_Dev_Challenge
                         IWebElement selectElementNeeded = driver.FindElement(By.XPath("//*[@id='selectionVal']"));
                         string strSelectText = selectElementNeeded.Text;
 
-                        IWebElement selectElement = driver.FindElement(By.XPath("//*[text() = '" + strSelectText + "']"));
+                        IWebElement dropDownElement = driver.FindElement(By.XPath("//*//*//select"));
+                        SelectElement selectElement = new SelectElement(dropDownElement);
                         if (selectElement != null)
                         {
-                            selectElement.Click();
+                            Console.WriteLine("Select " + strSelectText);
+                            selectElement.SelectByText(strSelectText);
+                            //selectElement.Click();
                             alert = driver.SwitchTo().Alert();
                             alert.Accept();
                         }
-
                     }
-                }
+
+                    IWebElement stepFiveElement = driver.FindElement(By.XPath("//*[text() ='Step 5.']"));
+                    string formResult = "" ;
+                    if (stepFiveElement != null)
+                    {
+                        Console.WriteLine(stepFiveElement.Text);
+                        IWebElement formElement;
+                        string placeholder;
+
+                        for (int i = 1; i < 10; i++)
+                        {
+                            formElement = driver.FindElement(By.XPath("//*[@id='FormTable']/tbody/tr[" + i + "]/td/*"));
+                            placeholder = formElement.GetAttribute("placeholder");
+                            Console.WriteLine("Sending " + placeholder + " to form.");
+                            formElement.SendKeys(placeholder);
+                        }
+
+                        formElement = driver.FindElement(By.XPath("//*[@id='FormTable']/tbody/tr[10]/td/center/button"));
+                        formElement.Click();
+
+                        alert = driver.SwitchTo().Alert();
+                        alert.Accept();
+
+                        formElement = driver.FindElement(By.Id("formResult"));
+                        formResult = formElement.Text;
+                        Console.WriteLine("Result: " + formResult);
+                    }
+
+                    IWebElement stepSixElement = driver.FindElement(By.XPath("//*[text() = 'Step 6.']"));
+                    if (stepSixElement != null)
+                    {
+                        Console.WriteLine(stepSixElement.Text);
+                        string lineNumber = driver.FindElement(By.Id("lineNum")).Text;
+                        Console.WriteLine("Line number to insert into: " + lineNumber);
+
+                        IWebElement textboxElement = driver.FindElement(By.XPath("//*[@id='inputTable']/tbody/tr[" + lineNumber + "]/td[2]/input"));
+                        textboxElement.Clear();
+                        textboxElement.SendKeys(formResult);
+                        textboxElement.SendKeys(Keys.Tab);
+                       
+                        alert = driver.SwitchTo().Alert();
+                        alert.Accept();                        
+                    }
+
+
+                    for (int i = 7; i < 11; i++)
+                    {
+                        IWebElement stepElement = driver.FindElement(By.XPath("//*[text()= 'Step " + i + ".']"));
+                        if (stepElement != null)
+                        {
+                            Console.WriteLine(stepElement.Text);
+                            stepElement.Click();
+                            bool dialogPresent = false;
+                            do
+                            {
+                                dialogPresent = CheckForDialog(driver);
+                            } while (!dialogPresent);
+
+
+
+                            alert = driver.SwitchTo().Alert();
+                            alert.Accept();
+
+                        }
+                    }
+
+                }                                   
                 Console.ReadLine();
             }
         }
@@ -94,22 +164,18 @@ namespace HPA_Dev_Challenge
             return result;            
         }
 
-        static bool CheckForDialog(IWebDriver driver,string parent)
+        static bool CheckForDialog(IWebDriver driver)
         {
-            bool result = false;
-            if (driver.WindowHandles.Count > 1)
+            bool result;
+            try
             {
-                foreach(string window in driver.WindowHandles)
-                {
-                    if(!window.Equals(parent))
-                    {
-                        driver.SwitchTo().Window(window);
-                        Console.WriteLine("Modal Dialog Found!");
-                    }
-                }
+                driver.SwitchTo().Alert();
+                result = true;                
             }
-
-
+            catch (NoAlertPresentException)
+            {
+                result = false;
+            }
             return result;
         }
     }
